@@ -44,11 +44,74 @@ body
     background-color: #b58863;
 }
 
+.coordinate 
+{
+    height: auto;
+    display: flex;
+    bottom: 4%;
+    left: 4%;
+    position: absolute;
+    font-size: 12px;
+    font-weight: bold;
+    font-family: Verdana, Geneva, Tahoma, sans-serif ;
+
+}
+
+.whiteText
+{
+    color: #f0d9b5;
+}
+
+.blackText
+{
+    color: #b58863;
+}
+
+.rank
+{
+    top: 4%;
+    right:4%;
+    left:auto;
+}
+
+
+/* these percentages are to help with scaling od the webpage when
+* we are trying to make sure the website is resposive
+*
+*/
+.piece
+{
+    width: 100%;
+    z-index: 1;
+    cursor: pointer;
+
+}
+
+.piece img
+{
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+    
+}
+
+
+
 @media (min-width: 600px)
 {
     .chessBoard
     {
         width: 600px;
         height: 600px;
+    }
+}
+
+/* adjusting font-size for small screens */
+@media (max-width: 600px)
+{
+    .coordinate
+    {
+        font-size: 8px;
+
     }
 }
