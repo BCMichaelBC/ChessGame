@@ -93,8 +93,52 @@ function drop(act)
     const piece = document.getElementById(data);
     const destSquare = act.currentTarget;
     let destSquareId = destSquare.id;
-    destSquare.appendChild(piece);
-    isWhiteTurn = !isWhiteTurn;
+
+    if(isSquareTaken(destSquare) == "blank")
+    {
+        console.log(isSquareTaken(destSquare));
+        destSquare.appendChild(piece);
+        isWhiteTurn = !isWhiteTurn;
+        return
+    }
+
+// if the square is taken remove all of its childern before appending, should look like a capture.
+    if(isSquareTaken(destSquare) != "blank")
+    {
+        console.log(isSquareTaken(destSquare));
+        while(destSquare.firstChild)
+        {
+            destSquare.removeChild(destSquare.firstChild)
+        }
+        destSquare.appendChild(piece);
+        isWhiteTurn = !isWhiteTurn;
+        return;
+
+    }
 }
 
 
+/*
+* @isSquareTaken function checks if a square is occupied by a piece
+* if it is, the function returns the color of the piece, if not return "blank"
+*
+* This function will be used to prevent pieces from moving to squares that are already being used
+* and it'll allow a capturing mechanic
+*/
+function isSquareTaken(square)
+{
+    // console.log(square.querySelector(".piece"));
+    console.log(square)
+    if(square.querySelector(".piece"))
+    {
+        const color = square.querySelector(".piece").getAttribute("color");
+        console.log(color)
+        return color;
+    }
+    else
+    {
+        return "blank";
+    }
+
+
+}
