@@ -159,6 +159,10 @@ function getPossibleMoves(startSqID, piece)
     {
         getPawnMoves(startSqID, pieceColor);
     }
+    if(piece.classList.contains("knight"))
+    {
+        getKnightMoves(startSqID, pieceColor);
+    }
 }
 
 function getPawnMoves(startSqID, pieceColor)
@@ -247,5 +251,41 @@ function checkPawnMoves(startSqID, pieceColor)
     SquareContent = isSquareTaken(currentSquare);
     legalSquares.push(currentSquareID);
 
+
+}
+
+function getKnightMoves(startSqID, pieceColor)
+{
+    const file = startSqID.charCodeAt(0) - 97;
+    const rank = startSqID.charAt(1);
+    const rankNum = parseInt(rank);
+    let currentFile = file;
+    let currentRank = rankNum;
+
+// the the var is going to be an array list containing all possible moves for the knight,
+// if a square is taken by a piece of same color it can not take otherwise it is a legal move
+    const moves = [ 
+        [-2, 1], [-1, 2], [1, 2], [2, 1], [2, -1], [1, -2], [-1,-2], [-2, -1]
+    ]
+
+
+    // this is basically another function for the knight moves
+    moves.forEach((move) =>
+    {
+        currentFile = file + move[0];
+        currentRank = rankNum + move[1];
+        if(currentFile >= 0 && currentFile <= 7 && currentRank > 0 && currentRank <= 8)
+        {
+            let currentSquareID = String.fromCharCode(currentFile + 97) + currentRank;
+            let currentSquare = document.getElementById(currentSquareID);
+            let SquareContent = isSquareTaken(currentSquare); 
+            if(SquareContent != "blank" && SquareContent == pieceColor)
+            {
+                return;
+            }
+            legalSquares.push(currentSquareID); 
+
+        }
+    });
 
 }
