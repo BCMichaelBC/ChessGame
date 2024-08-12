@@ -159,9 +159,15 @@ function getPossibleMoves(startSqID, piece)
     {
         getPawnMoves(startSqID, pieceColor);
     }
+
     if(piece.classList.contains("knight"))
     {
         getKnightMoves(startSqID, pieceColor);
+    }
+
+    if(piece.classList.contains("rook"))
+    {
+        getRookMoves(startSqID, pieceColor);
     }
 }
 
@@ -289,3 +295,133 @@ function getKnightMoves(startSqID, pieceColor)
     });
 
 }
+
+function getRookMoves(startSqID, pieceColor)
+{
+    /* 
+    * These function will be responsble for moving the rook up down and left and right
+    * inside each functoin it will be checking along the line where the rook can go is a 
+    * legal square to take or not
+    */
+    moveToEightRank(startSqID, pieceColor);
+    moveToFirstRank(startSqID, pieceColor);
+    moveToAFile(startSqID, pieceColor);
+    moveToHFile(startSqID, pieceColor);
+
+
+}
+
+function moveToEightRank(startSqID, pieceColor)
+{
+    const file = startSqID.charAt(0);
+    const rank = startSqID.charAt(1);
+    const rankNum = parseInt(rank);
+    let currentRank = rankNum;
+
+    while(currentRank != 8)
+    {
+        currentRank++;
+        let currentSquareID = file + currentRank;
+        let currentSquare = document.getElementById(currentSquareID)
+        let SquareContent = isSquareTaken(currentSquare);
+
+        if(SquareContent != "blank" && SquareContent == pieceColor)
+        {
+            return; // if the square is not empty do nothing
+        }
+        legalSquares.push(currentSquareID); //otherwise push it on one of the legal squares that can be take by the rook
+
+        if(SquareContent != "blank" && SquareContent != pieceColor)
+            {
+                return;
+            }
+    }
+    return;
+}
+
+
+function moveToFirstRank(startSqID, pieceColor)
+{
+    const file = startSqID.charAt(0);
+    const rank = startSqID.charAt(1);
+    const rankNum = parseInt(rank);
+    let currentRank = rankNum;
+
+    while(currentRank != 1)
+    {
+        currentRank--;
+        let currentSquareID = file + currentRank;
+        let currentSquare = document.getElementById(currentSquareID)
+        let SquareContent = isSquareTaken(currentSquare);
+
+        if(SquareContent != "blank" && SquareContent == pieceColor)
+        {
+            return; // if the square is not empty do nothing
+        }
+        legalSquares.push(currentSquareID); //otherwise push it on one of the legal squares that can be take by the rook
+
+        if(SquareContent != "blank" && SquareContent != pieceColor)
+            {
+                return;
+            }
+    }
+    return;
+}
+
+
+function moveToAFile(startSqID, pieceColor)
+{
+    const file = startSqID.charAt(0);
+    const rank = startSqID.charAt(1);
+    const rankNum = parseInt(rank);
+    let currentFile = file;
+
+    while(currentFile != "a")
+    {
+        currentFile = String.fromCharCode(currentFile.charCodeAt(currentFile.length - 1) - 1);
+        let currentSquareID = currentFile + currentRank;
+        let currentSquare = document.getElementById(currentSquareID)
+        let SquareContent = isSquareTaken(currentSquare);
+
+        if(SquareContent != "blank" && SquareContent == pieceColor)
+        {
+            return; // if the square is not empty do nothing
+        }
+        legalSquares.push(currentSquareID); //otherwise push it on one of the legal squares that can be take by the rook
+
+        if(SquareContent != "blank" && SquareContent != pieceColor)
+            {
+                return;
+            }
+    }
+    return;
+}
+
+function moveToHFile(startSqID, pieceColor)
+{
+    const file = startSqID.charAt(0);
+    const rank = startSqID.charAt(1);
+    const rankNum = parseInt(rank);
+    let currentFile = file;
+
+    while(currentFile != "h")
+    {
+        currentFile = String.fromCharCode(currentFile.charCodeAt(currentFile.length - 1) + 1);
+        let currentSquareID = currentFile + currentRank;
+        let currentSquare = document.getElementById(currentSquareID)
+        let SquareContent = isSquareTaken(currentSquare);
+
+        if(SquareContent != "blank" && SquareContent == pieceColor)
+        {
+            return; // if the square is not empty do nothing
+        }
+        legalSquares.push(currentSquareID); //otherwise push it on one of the legal squares that can be take by the rook
+
+        if(SquareContent != "blank" && SquareContent != pieceColor)
+            {
+                return;
+            }
+    }
+    return;
+}
+
