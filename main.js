@@ -174,6 +174,10 @@ function getPossibleMoves(startSqID, piece)
     {
         getBishopMoves(startSqID, pieceColor);
     }
+    if(piece.classList.contains("queen"))
+    {
+        getQueenMoves(startSqID, pieceColor);
+    }
 }
 
 function getPawnMoves(startSqID, pieceColor)
@@ -308,10 +312,10 @@ function getRookMoves(startSqID, pieceColor)
     * inside each functoin it will be checking along the line where the rook can go is a 
     * legal square to take or not
     */
-    moveToEightRank(startSqID, pieceColor);
-    moveToFirstRank(startSqID, pieceColor);
-    moveToAFile(startSqID, pieceColor);
-    moveToHFile(startSqID, pieceColor);
+    moveToEightRank(startSqID, pieceColor); // up
+    moveToFirstRank(startSqID, pieceColor); // down 
+    moveToAFile(startSqID, pieceColor); // left 
+    moveToHFile(startSqID, pieceColor); // right
 
 
 }
@@ -559,3 +563,18 @@ function moveToFirstRankHfile(startSqID, pieceColor)
 }
 
 
+/*
+* This function is interesting since we dont have to do much work 
+* since the functions to move diagonally and vertical and horizonally have already been made
+*/ 
+function getQueenMoves(startSqID, pieceColor)
+{
+    moveToEightRankHfile(startSqID, pieceColor); // top right  .. These are all diagonal movements
+    moveToEightRankAfile(startSqID, pieceColor); // top left
+    moveToFirstRankHfile(startSqID, pieceColor); // bottom right
+    moveToFirstRankAfile(startSqID, pieceColor); // bottom left 
+    moveToEightRank(startSqID, pieceColor); // up
+    moveToFirstRank(startSqID, pieceColor);// down 
+    moveToAFile(startSqID, pieceColor); // left 
+    moveToHFile(startSqID, pieceColor); // right 
+}
