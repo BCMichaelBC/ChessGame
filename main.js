@@ -379,7 +379,7 @@ function moveToAFile(startSqID, pieceColor)
     while(currentFile != "a")
     {
         currentFile = String.fromCharCode(currentFile.charCodeAt(currentFile.length - 1) - 1);
-        let currentSquareID = currentFile + currentRank;
+        let currentSquareID = currentFile + rank;
         let currentSquare = document.getElementById(currentSquareID)
         let SquareContent = isSquareTaken(currentSquare);
 
@@ -407,7 +407,7 @@ function moveToHFile(startSqID, pieceColor)
     while(currentFile != "h")
     {
         currentFile = String.fromCharCode(currentFile.charCodeAt(currentFile.length - 1) + 1);
-        let currentSquareID = currentFile + currentRank;
+        let currentSquareID = currentFile + rank;
         let currentSquare = document.getElementById(currentSquareID)
         let SquareContent = isSquareTaken(currentSquare);
 
