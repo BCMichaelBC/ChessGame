@@ -174,10 +174,17 @@ function getPossibleMoves(startSqID, piece)
     {
         getBishopMoves(startSqID, pieceColor);
     }
+
     if(piece.classList.contains("queen"))
     {
         getQueenMoves(startSqID, pieceColor);
     }
+
+    if(piece.classList.contains("king"))
+    {
+        getKingMoves(startSqID, pieceColor);
+    }
+
 }
 
 function getPawnMoves(startSqID, pieceColor)
@@ -577,4 +584,42 @@ function getQueenMoves(startSqID, pieceColor)
     moveToFirstRank(startSqID, pieceColor);// down 
     moveToAFile(startSqID, pieceColor); // left 
     moveToHFile(startSqID, pieceColor); // right 
+}
+
+
+/*
+* King moves will be similar to the knight moves just one space tho, so we just need to adjust the movement
+*/
+function getKingMoves(startSqID, pieceColor)
+{
+    const file = startSqID.charCodeAt(0) - 97;
+    const rank = startSqID.charAt(1);
+    const rankNum = parseInt(rank);
+    let currentFile = file;
+    let currentRank = rankNum;
+
+
+    const moves = [ 
+        [0, 1], [0, -1], [1, 1], [1, -1], [-1, 0], [-1, -1], [-1, 1], [1, 0]
+    ]
+
+
+    moves.forEach((move) =>
+    {
+        currentFile = file + move[0];
+        currentRank = rankNum + move[1];
+        if(currentFile >= 0 && currentFile <= 7 && currentRank > 0 && currentRank <= 8)
+        {
+            let currentSquareID = String.fromCharCode(currentFile + 97) + currentRank;
+            let currentSquare = document.getElementById(currentSquareID);
+            let SquareContent = isSquareTaken(currentSquare); 
+            if(SquareContent != "blank" && SquareContent == pieceColor)
+            {
+                return;
+            }
+            legalSquares.push(currentSquareID); 
+
+        }
+    });
+
 }
