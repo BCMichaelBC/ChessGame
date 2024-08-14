@@ -171,35 +171,78 @@ function drop(act)
 {
     act.preventDefault();
     let data = act.dataTransfer.getData("text");
-    const piece = document.getElementById(data);
+    let [pieceId , startSqID] = data.split("|"); // preparing to revcive json data
+    let legalSquaresJson = act.dataTransfer.getData("application/Json");
+    if(legalSquaresJson.length == 0 )
+    {
+        return;
+    }
+    let legalSquares = JSON.parse(legalSquaresJson);
+
+    const piece = document.getElementById(pieceId);
+    const pieceColor = piece.getAttribute("color");
+    const pieceType = piece.classList[1];
     const destSquare = act.currentTarget;
     let destSquareId = destSquare.id;
 
+    let SquareContent = getPieceAtSquare(destSquareId, boardSquaresArray);
+
     // legalSquares.includes() we do this to only allow a piece to dropped when the square id is among the legal ids
-    if((isSquareTaken(destSquare) == "blank") && (legalSquares.includes(destSquareId)))
+    if((SquareContent.pieceColor == "blank") && (legalSquares.includes(destSquareId)))
     {
-        console.log(isSquareTaken(destSquare));
+        // console.log(isSquareTaken(destSquare));
         destSquare.appendChild(piece);
         isWhiteTurn = !isWhiteTurn;
-        legalSquares.length = 0;
-        return
+        // legalSquares.length = 0;
+        updateBoardSqauresArray(startSqID, destSquareId, boardSquaresArray );
+        return;
     }
 
 // if the square is taken remove all of its childern before appending, should look like a capture.
-    if(isSquareTaken(destSquare) != "blank" && legalSquares.includes(destSquareId))
+    if(SquareContent.pieceColor != "blank" && legalSquares.includes(destSquareId))
     {
-        console.log(isSquareTaken(destSquare));
+        // console.log(isSquareTaken(destSquare));
         while(destSquare.firstChild)
         {
             destSquare.removeChild(destSquare.firstChild)
         }
         destSquare.appendChild(piece);
         isWhiteTurn = !isWhiteTurn;
-        legalSquares.length = 0;
+        // legalSquares.length = 0;
+        updateBoardSqauresArray(startSqID, destSquareId, boardSquaresArray );
         return;
 
     }
 }
+
+
+    /*
+    * This functoin takes startSqID and the destSquareId arguemnts and updates there 
+    * respective objects in the boardSquaresArray after each move. this means removing the piece
+    * from the start square and adding it to the destination square.
+    */
+function updateBoardSqauresArray(currentSquareID, destSquareId, boardSquaresArray)
+{
+    let currentSquare = boardSquaresArray.find((element) => element.squareId === currentSquareID);
+
+    let destSquareElement =  boardSquaresArray.find((element) => element.squareId === destSquareId);
+
+    let pieceColor = currentSquare.pieceColor;
+    let pieceType = currentSquare.pieceType;
+    let pieceId = currentSquare.pieceId;
+
+    destSquareElement.pieceColor = pieceColor;
+    destSquareElement.pieceType = pieceType;
+    destSquareElement.pieceId = pieceId;
+
+    currentSquare.pieceColor = "blank";
+    currentSquare.pieceType = "blank";
+    currentSquare.pieceId =  "blank";
+}
+
+
+
+
 
     /*
     * making a new function called getPieceAtSquare to used in replace of isSqaureTaken 
