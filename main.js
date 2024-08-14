@@ -340,31 +340,31 @@ function getPossibleMoves(startSqID, piece, boardSquaresArray)
         return legalSquares;
     }
 
-    if(pieceType = "knight")
+    if(pieceType == "knight")
     {
         legalSquares = getKnightMoves(startSqID, pieceColor, boardSquaresArray);
         return legalSquares;
     }
 
-    if(pieceType = "rook")
+    if(pieceType == "rook")
     {
         legalSquares = getRookMoves(startSqID, pieceColor, boardSquaresArray);
         return legalSquares;
     }
 
-    if(pieceType = "bishop")
+    if(pieceType == "bishop")
     {
         legalSquares = getBishopMoves(startSqID, pieceColor, boardSquaresArray);
         return legalSquares;
     }
 
-    if(pieceType = "queen")
+    if(pieceType == "queen")
     {
         legalSquares = getQueenMoves(startSqID, pieceColor, boardSquaresArray);
         return legalSquares;
     }
 
-    if(pieceType = "king")
+    if(pieceType == "king")
     {
         legalSquares = getKingMoves(startSqID, pieceColor, boardSquaresArray);
         return legalSquares;
