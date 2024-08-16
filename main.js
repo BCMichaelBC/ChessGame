@@ -185,6 +185,13 @@ function drop(act)
     const destSquare = act.currentTarget;
     let destSquareId = destSquare.id;
 
+    if(pieceType == "king")
+    {
+        let isCheck = isKingInCheck(destSquareId, pieceColor, boardSquaresArray);
+        if(isCheck)
+            return
+    }
+
     let SquareContent = getPieceAtSquare(destSquareId, boardSquaresArray);
 
     // legalSquares.includes() we do this to only allow a piece to dropped when the square id is among the legal ids
@@ -886,4 +893,66 @@ function getKingMoves(startSqID, pieceColor, boardSquaresArray)
 
     return legalSquares;
 
+}
+
+
+function isKingInCheck(squareId, pieceColor, boardSquaresArray)
+{
+    let legalSquares = getRookMoves(squareId, pieceColor, boardSquaresArray);
+
+    for(let squareId of legalSquares)
+    {
+        let pieceProperties = getPieceAtSquare(squareId, boardSquaresArray);
+        if(pieceProperties.pieceType == "rook" || pieceProperties.pieceType == "queen" && pieceColor != pieceProperties.pieceColor)
+        {
+            return true;
+        }
+    }
+
+    legalSquares = getBishopMoves(squareId, pieceColor, boardSquaresArray);
+
+    for(let squareId of legalSquares)
+    {
+        let pieceProperties = getPieceAtSquare(squareId, boardSquaresArray);
+        if(pieceProperties.pieceType == "bishop" || pieceProperties.pieceType == "queen" && pieceColor != pieceProperties.pieceColor)
+        {
+            return true;
+        }
+    }
+
+    legalSquares = checkPawnDiagCap(squareId, pieceColor, boardSquaresArray);
+
+    for(let squareId of legalSquares)
+    {
+        let pieceProperties = getPieceAtSquare(squareId, boardSquaresArray);
+        if(pieceProperties.pieceType == "pawn" && pieceColor != pieceProperties.pieceColor)
+        {
+            return true;
+        }
+    }
+
+    legalSquares = getKnightMoves(squareId, pieceColor, boardSquaresArray);
+
+    for(let squareId of legalSquares)
+    {
+        let pieceProperties = getPieceAtSquare(squareId, boardSquaresArray);
+        if(pieceProperties.pieceType == "knight" && pieceColor != pieceProperties.pieceColor)
+        {
+            return true;
+        }
+    }
+    
+
+    legalSquares = getKingMoves(squareId, pieceColor, boardSquaresArray);
+
+    for(let squareId of legalSquares)
+    {
+        let pieceProperties = getPieceAtSquare(squareId, boardSquaresArray);
+        if(pieceProperties.pieceType == "king" && pieceColor != pieceProperties.pieceColor)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
