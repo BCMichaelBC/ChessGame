@@ -11,6 +11,8 @@
 
 let boardSquaresArray = [];
 let isWhiteTurn = true;
+let  whiteKingSquare = "e1";
+let blackKingSquare = "e8";
 const boardSquares = document.getElementsByClassName("square");
 const pieces = document.getElementsByClassName("piece");
 const pieceImg = document.getElementsByTagName("img");
@@ -107,6 +109,21 @@ function setupBoard()
     }
 }
 
+/*
+* a deep copy of an array measn creating a new array and copying over the value, 
+* so that changes made to the new array do not affect the original
+*
+* The map method is a built in javaScript functoin that creates a new array populated with the 
+* results of calling a provided function on every element in the calling array.
+*/
+function deepCopyArray(array)
+{
+let arrayCopy = array.map(element => {
+    return {... element}
+});
+return arrayCopy;
+}
+
 
 
 /*
@@ -185,11 +202,15 @@ function drop(act)
     const destSquare = act.currentTarget;
     let destSquareId = destSquare.id;
 
+
+    legalSquares = isMoveValidAgainstCheck(pieceColor, pieceType, startSqID, legalSquares);
+
     if(pieceType == "king")
     {
         let isCheck = isKingInCheck(destSquareId, pieceColor, boardSquaresArray);
         if(isCheck)
-            return
+            return;
+        isWhiteTurn ? (whiteKingSquare = destSquareId) : (blackKingSquare = destSquareId)
     }
 
     let SquareContent = getPieceAtSquare(destSquareId, boardSquaresArray);
@@ -955,4 +976,46 @@ function isKingInCheck(squareId, pieceColor, boardSquaresArray)
     }
 
     return false;
+}
+
+
+    /*
+    * this function will take piece features and the starting sq and legal sqs
+    * it will then check if playing those legal moves will put the king in check 
+    * by playing them on the copy of the boardSquaresArray. if it puts in check 
+    * it will be filterd out as a legal move thus allowing the tacting called "pinning"
+    */
+
+function isMoveValidAgainstCheck(pieceColor, pieceType, startSqID, legalSquares)
+{
+    let kingSquare = whiteKingSquare;
+    if(isWhiteTurn)
+    {
+        kingSquare = whiteKingSquare;
+    }
+    else
+    {
+        kingSquare = blackKingSquare;
+    }
+
+    let boardSquaresArrayCopy = deepCopyArray(boardSquaresArray); 
+
+    let legalSquaresCopy = legalSquares.slice();
+
+    legalSquaresCopy.forEach((element) =>{
+        let destinationId = element;
+        boardSquaresArrayCopy = deepCopyArray(boardSquaresArray); 
+        updateBoardSqauresArray(startSqID, destinationId, boardSquaresArrayCopy);
+        if(pieceType != "king" && isKingInCheck(kingSquare, pieceColor, boardSquaresArrayCopy))
+        {
+            legalSquares = legalSquares.filter((item) => item != destinationId);
+        }
+
+        if(pieceType == "king" && isKingInCheck(destinationId, pieceColor, boardSquaresArrayCopy))
+        {
+            legalSquares = legalSquares.filter((item) => item != destinationId);
+        }
+    })
+
+    return legalSquares;
 }
