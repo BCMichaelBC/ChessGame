@@ -223,6 +223,7 @@ function drop(act)
         isWhiteTurn = !isWhiteTurn;
         // legalSquares.length = 0;
         updateBoardSqauresArray(startSqID, destSquareId, boardSquaresArray );
+        checkForCheckMate(); // checking for checkmate after every drop
         return;
     }
 
@@ -238,6 +239,7 @@ function drop(act)
         isWhiteTurn = !isWhiteTurn;
         // legalSquares.length = 0;
         updateBoardSqauresArray(startSqID, destSquareId, boardSquaresArray );
+        checkForCheckMate();
         return;
 
     }
@@ -1018,4 +1020,65 @@ function isMoveValidAgainstCheck(pieceColor, pieceType, startSqID, legalSquares)
     })
 
     return legalSquares;
+}
+
+
+    /* 
+    * the checkMate function will check if there are no legal moves for all pieces on one side
+    * if there arent then it is checkmate and some one has won
+    */
+
+function checkForCheckMate()
+{
+    let kingSquare = isWhiteTurn ? whiteKingSquare :blackKingSquare;
+    let pieceColor = isWhiteTurn ? "white" : "black";
+    let boardSquaresArrayCopy = deepCopyArray(boardSquaresArray);
+    let kingIsCheck = isKingInCheck(kingSquare, pieceColor, boardSquaresArrayCopy);
+    
+    if(!kingIsCheck) 
+        return;
+
+    let possibleMoves = getAllPossibleMoves(boardSquaresArrayCopy, pieceColor); 
+
+    if(possibleMoves.length > 0)
+        return;
+    let message = "";
+
+    isWhiteTurn ? message = "Black Wins!" : message = "White Wins!";
+
+    showAlert(message);
+
+}
+
+function getAllPossibleMoves(squaresArray, pieceColor)
+{
+    /* 
+    * The flatMap method is used to map each square occupied by a piece of a given color 
+    * to an array of its legal moves, then flatten the resulting array of arrays into a single array
+    */
+
+    return squaresArray.filter((square) => square.pieceColor === pieceColor).flatMap((square) =>{
+        const {pieceColor, pieceType, pieceId} = getPieceAtSquare(square.squareId, squaresArray);
+
+        if(pieceId === "blank") return [];
+        let squaresArrayCopy = deepCopyArray(squaresArray);
+        const pieceObj = {pieceColor: pieceColor, pieceType: pieceType, pieceId: pieceId}
+        let legalSquares = getPossibleMoves(square.squareId, pieceObj, squaresArrayCopy);
+        legalSquares = isMoveValidAgainstCheck(pieceColor, pieceType,square.squareId, legalSquares);
+        return legalSquares;
+    })
+}
+
+
+function showAlert(mess)
+{
+    const alert = document.getElementById("alert");
+    alert.innerHTML = mess;
+    alert.style.display = "block";
+
+    setTimeout(function(){
+        alert.style.display = "none";
+        
+    }, 3000);
+
 }
