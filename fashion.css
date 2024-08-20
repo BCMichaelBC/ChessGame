@@ -10,7 +10,21 @@ body
     height: 100vh; 
     
 }
-
+#alert
+{
+    position: fixed;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: green;
+    width: 60vw;
+    border-radius: 5px;
+    text-align: center;
+    align-content: center;
+    justify-content: center;
+    font-size: x-large;
+    display: none;
+}
 
 /* class chessboard */
 .chessBoard
