@@ -10,9 +10,10 @@
     */
 
 let boardSquaresArray = [];
+let moves = []; // keep track of moves made by both players
 let isWhiteTurn = true;
-let  whiteKingSquare = "e1";
-let blackKingSquare = "e8";
+// let  whiteKingSquare = "e1"; // dnot really need this anymore because of the new function getKingLastMove()
+// let blackKingSquare = "e8";
 const boardSquares = document.getElementsByClassName("square");
 const pieces = document.getElementsByClassName("piece");
 const pieceImg = document.getElementsByTagName("img");
@@ -33,6 +34,18 @@ const pieceImg = document.getElementsByTagName("img");
 setupBoard();
 setupPieces();
 fillBoardSquaresArray();
+
+
+function makeMove(startSqID, destSquareId, pieceType, pieceColor, captured)
+{
+    moves.push({
+        from: startSqID,
+        to: destSquareId,
+        pieceType: pieceType,
+        pieceColor: pieceColor,
+        captured: captured
+    });
+}
 
 
 
@@ -210,7 +223,7 @@ function drop(act)
         let isCheck = isKingInCheck(destSquareId, pieceColor, boardSquaresArray);
         if(isCheck)
             return;
-        isWhiteTurn ? (whiteKingSquare = destSquareId) : (blackKingSquare = destSquareId)
+        // isWhiteTurn ? (whiteKingSquare = destSquareId) : (blackKingSquare = destSquareId)
     }
 
     let SquareContent = getPieceAtSquare(destSquareId, boardSquaresArray);
@@ -223,6 +236,8 @@ function drop(act)
         isWhiteTurn = !isWhiteTurn;
         // legalSquares.length = 0;
         updateBoardSqauresArray(startSqID, destSquareId, boardSquaresArray );
+        let captured = false;
+        makeMove(startSqID, destSquareId, pieceType, pieceColor, captured);
         checkForCheckMate(); // checking for checkmate after every drop
         return;
     }
@@ -239,6 +254,8 @@ function drop(act)
         isWhiteTurn = !isWhiteTurn;
         // legalSquares.length = 0;
         updateBoardSqauresArray(startSqID, destSquareId, boardSquaresArray );
+        let captured = true;
+        makeMove(startSqID, destSquareId, pieceType, pieceColor, captured);
         checkForCheckMate();
         return;
 
@@ -343,7 +360,23 @@ function isSquareTaken(square)
 
 
 
+    /* this function will search the moves array to find the last move made by the king */
 
+    /* 
+    * with this function there is no ned to save the king's last sqaure anymore
+    * so we can modify isMoveValidAginstCheck function and checkForCheckMate function
+    * to just use this new function
+    */
+
+function getKingLastMove(color)
+{
+    let kingLastMove = moves.find( element => element.pieceType === "king" && element.pieceColor === color);
+    
+    if(kingLastMove == undefined)
+        return isWhiteTurn ? "e1" : "e8";
+
+    return kingLastMove;
+}
 
 
 
@@ -914,6 +947,14 @@ function getKingMoves(startSqID, pieceColor, boardSquaresArray)
         }
     });
 
+    // trying to enable castling 
+    let shortCastle = isShortCastlePossble(pieceColor, boardSquaresArray);
+    let longCastle = isLongCastlePossible(pieceColor, boardSquaresArray);
+    if(shortCastle != "blank")
+        legalSquares.push(shortCastle);
+
+    if(longCastle != "blank")
+        legalSquares.push(longCastle);
     return legalSquares;
 
 }
@@ -990,14 +1031,14 @@ function isKingInCheck(squareId, pieceColor, boardSquaresArray)
 
 function isMoveValidAgainstCheck(pieceColor, pieceType, startSqID, legalSquares)
 {
-    let kingSquare = whiteKingSquare;
+    let kingSquare = getKingLastMove("white");
     if(isWhiteTurn)
     {
-        kingSquare = whiteKingSquare;
+        kingSquare = getKingLastMove("white");
     }
     else
     {
-        kingSquare = blackKingSquare;
+        kingSquare = getKingLastMove("black");
     }
 
     let boardSquaresArrayCopy = deepCopyArray(boardSquaresArray); 
@@ -1030,7 +1071,7 @@ function isMoveValidAgainstCheck(pieceColor, pieceType, startSqID, legalSquares)
 
 function checkForCheckMate()
 {
-    let kingSquare = isWhiteTurn ? whiteKingSquare :blackKingSquare;
+    let kingSquare = isWhiteTurn ? getKingLastMove("white") :getKingLastMove("black");
     let pieceColor = isWhiteTurn ? "white" : "black";
     let boardSquaresArrayCopy = deepCopyArray(boardSquaresArray);
     let kingIsCheck = isKingInCheck(kingSquare, pieceColor, boardSquaresArrayCopy);
@@ -1070,6 +1111,85 @@ function getAllPossibleMoves(squaresArray, pieceColor)
 }
 
 
+function isShortCastlePossble(pieceColor, boardSquaresArray)
+{
+    let rank = pieceColor == "white" ? "1" : "8";
+
+    /* 
+    * the $ part of the code is a template that represents a string. when the code is executed, the value
+    * of the rank variable is inserted into the string replacing the $ placeholder
+    */
+    let fSquare = boardSquaresArray.find(element => element.squareId === 'f${rank}');
+    let gSquare = boardSquaresArray.find(element => element.squareId === 'g${rank}');
+
+    if(fSquare.pieceColor != "blank" || gSquare .pieceColor != "blank" || kingHasMoved(pieceColor) || rookHasMoved(pieceColor, 'h${rank}'))
+    {
+        return "blank";
+    }
+
+    return 'g${rank}';
+
+}
+
+function isLongCastlePossible(pieceColor, boardSquaresArray)
+{
+
+    let rank = pieceColor == "white" ? "1" : "8";
+    let dSquare = boardSquaresArray.find(element => element.squareId === 'd${rank}');
+    let cSquare = boardSquaresArray.find(element => element.squareId === 'c${rank}');
+    let bSquare = boardSquaresArray.find(element => element.squareId === 'b${rank}');
+
+    if(dSquare.pieceColor != "blank" || cSquare .pieceColor != "blank" || bSquare .pieceColor != "blank"
+        || kingHasMoved(pieceColor) || rookHasMoved(pieceColor, 'a${rank}'))
+    {
+        return "blank";
+    }
+
+    return 'c${rank}';
+}
+
+
+function kingHasMoved(pieceColor)
+{
+    let result = moves.find((element) => (element.pieceColor == pieceColor) &&(element.pieceType == "king"));
+
+    if(result != undefined)
+        return true;
+    return false;
+
+}
+
+function rookHasMoved(pieceColor, startSqID)
+{
+    let result = moves.find((element) => (element.pieceColor == pieceColor) &&(element.pieceType == "rook")
+    && (element.from == startSqID));
+
+    if(result != undefined)
+        return true;
+    return false;
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function showAlert(mess)
 {
     const alert = document.getElementById("alert");
@@ -1082,3 +1202,4 @@ function showAlert(mess)
     }, 3000);
 
 }
+
