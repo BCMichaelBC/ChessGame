@@ -14,6 +14,7 @@ let moves = []; // keep track of moves made by both players
 let isWhiteTurn = true;
 // let  whiteKingSquare = "e1"; // dnot really need this anymore because of the new function getKingLastMove()
 // let blackKingSquare = "e8";
+const castlingSquares = ["g1", "g8", "c1", "c8"];
 const boardSquares = document.getElementsByClassName("square");
 const pieces = document.getElementsByClassName("piece");
 const pieceImg = document.getElementsByTagName("img");
@@ -232,10 +233,28 @@ function drop(act)
     if((SquareContent.pieceColor == "blank") && (legalSquares.includes(destSquareId)))
     {
         // console.log(isSquareTaken(destSquare));
+        let isCheck = false;
+        if(pieceType == "king")
+        {
+            isCheck = isKingInCheck(startSqID, pieceColor, boardSquaresArray);
+        }
+        if(pieceType == "king" && !kingHasMoved(pieceColor) && castlingSquares.includes(destSquareId) 
+            && !isCheck)
+        {
+            performCastling(piece, pieceColor, startSqID, destSquareId, boardSquaresArray);
+            return;
+        }
+
+        if(pieceType == "king" && !kingHasMoved(pieceColor) && castlingSquares.includes(destSquareId) 
+            && isCheck)
+        {
+            return;
+        }
+
         destSquare.appendChild(piece);
         isWhiteTurn = !isWhiteTurn;
         // legalSquares.length = 0;
-        updateBoardSqauresArray(startSqID, destSquareId, boardSquaresArray );
+        updateBoardSquaresArray(startSqID, destSquareId, boardSquaresArray );
         let captured = false;
         makeMove(startSqID, destSquareId, pieceType, pieceColor, captured);
         checkForCheckMate(); // checking for checkmate after every drop
@@ -253,7 +272,7 @@ function drop(act)
         destSquare.appendChild(piece);
         isWhiteTurn = !isWhiteTurn;
         // legalSquares.length = 0;
-        updateBoardSqauresArray(startSqID, destSquareId, boardSquaresArray );
+        updateBoardSquaresArray(startSqID, destSquareId, boardSquaresArray );
         let captured = true;
         makeMove(startSqID, destSquareId, pieceType, pieceColor, captured);
         checkForCheckMate();
@@ -268,7 +287,7 @@ function drop(act)
     * respective objects in the boardSquaresArray after each move. this means removing the piece
     * from the start square and adding it to the destination square.
     */
-function updateBoardSqauresArray(currentSquareID, destSquareId, boardSquaresArray)
+function updateBoardSquaresArray(currentSquareID, destSquareId, boardSquaresArray)
 {
     let currentSquare = boardSquaresArray.find((element) => element.squareId === currentSquareID);
 
@@ -375,7 +394,12 @@ function getKingLastMove(color)
     if(kingLastMove == undefined)
         return isWhiteTurn ? "e1" : "e8";
 
-    return kingLastMove;
+    /* 
+    * even though when i searched it up .to is used for readablity so i thought it wouldnt be needed 
+    * but it turns out without it the function getRookMoves can not read it properly and is 
+    * returning an error because of the charAt function not being able to grab it
+    */
+    return kingLastMove.to; 
 }
 
 
@@ -1048,7 +1072,7 @@ function isMoveValidAgainstCheck(pieceColor, pieceType, startSqID, legalSquares)
     legalSquaresCopy.forEach((element) =>{
         let destinationId = element;
         boardSquaresArrayCopy = deepCopyArray(boardSquaresArray); 
-        updateBoardSqauresArray(startSqID, destinationId, boardSquaresArrayCopy);
+        updateBoardSquaresArray(startSqID, destinationId, boardSquaresArrayCopy);
         if(pieceType != "king" && isKingInCheck(kingSquare, pieceColor, boardSquaresArrayCopy))
         {
             legalSquares = legalSquares.filter((item) => item != destinationId);
@@ -1119,15 +1143,16 @@ function isShortCastlePossble(pieceColor, boardSquaresArray)
     * the $ part of the code is a template that represents a string. when the code is executed, the value
     * of the rank variable is inserted into the string replacing the $ placeholder
     */
-    let fSquare = boardSquaresArray.find(element => element.squareId === 'f${rank}');
-    let gSquare = boardSquaresArray.find(element => element.squareId === 'g${rank}');
+    let fSquare = boardSquaresArray.find(element => element.squareId === `f${rank}`);
+    let gSquare = boardSquaresArray.find(element => element.squareId === `g${rank}`);
+    
 
-    if(fSquare.pieceColor != "blank" || gSquare .pieceColor != "blank" || kingHasMoved(pieceColor) || rookHasMoved(pieceColor, 'h${rank}'))
+    if(fSquare.pieceColor != "blank" || gSquare .pieceColor != "blank" || kingHasMoved(pieceColor) || rookHasMoved(pieceColor, `h${rank}`))
     {
         return "blank";
     }
 
-    return 'g${rank}';
+    return `g${rank}`;
 
 }
 
@@ -1135,17 +1160,17 @@ function isLongCastlePossible(pieceColor, boardSquaresArray)
 {
 
     let rank = pieceColor == "white" ? "1" : "8";
-    let dSquare = boardSquaresArray.find(element => element.squareId === 'd${rank}');
-    let cSquare = boardSquaresArray.find(element => element.squareId === 'c${rank}');
-    let bSquare = boardSquaresArray.find(element => element.squareId === 'b${rank}');
+    let dSquare = boardSquaresArray.find(element => element.squareId === `d${rank}`);
+    let cSquare = boardSquaresArray.find(element => element.squareId === `c${rank}`);
+    let bSquare = boardSquaresArray.find(element => element.squareId === `b${rank}`);
 
     if(dSquare.pieceColor != "blank" || cSquare .pieceColor != "blank" || bSquare .pieceColor != "blank"
-        || kingHasMoved(pieceColor) || rookHasMoved(pieceColor, 'a${rank}'))
+        || kingHasMoved(pieceColor) || rookHasMoved(pieceColor, `a${rank}`))
     {
         return "blank";
     }
 
-    return 'c${rank}';
+    return `c${rank}`;
 }
 
 
@@ -1167,6 +1192,60 @@ function rookHasMoved(pieceColor, startSqID)
     if(result != undefined)
         return true;
     return false;
+    
+}
+
+function performCastling(piece, pieceColor, startSqID, destSquareId, boardSquaresArray)
+{
+    let rookId, rookDestinationSqId, checkSquareId;
+
+    if(destSquareId == "g1")
+    {
+        rookId = "rookh1";
+        rookDestinationSqId = "f1";
+        checkSquareId = "f1";
+    }
+
+    else if(destSquareId == "c1")
+    {
+        rookId = "rooka1";
+        rookDestinationSqId = "d1";
+        checkSquareId = "d1";
+    }
+
+    else if(destSquareId == "g8")
+    {
+        rookId = "rookh8";
+        rookDestinationSqId = "f8";
+        checkSquareId = "f8";
+    }
+    else if(destSquareId == "c8")
+    {
+        rookId = "rooka8";
+        rookDestinationSqId = "d8";
+        checkSquareId = "d8";
+    }
+
+    if(isKingInCheck(checkSquareId, pieceColor, boardSquaresArray) )
+        return;
+
+    let rook = document.getElementById(rookId);
+    let rookDestinationSq = document.getElementById(rookDestinationSqId);
+
+    rookDestinationSq.appendChild(rook);
+    updateBoardSquaresArray(rook.id.slice(-2), rookDestinationSq.id, boardSquaresArray);
+
+    const destinationSq = document.getElementById(destSquareId);
+    destinationSq.appendChild(piece);
+    isWhiteTurn = !isWhiteTurn;
+
+    updateBoardSquaresArray(startSqID, destSquareId, boardSquaresArray);
+
+    let captured = false;
+
+    makeMove(startSqID, destSquareId, "king", pieceColor, captured);
+    checkForCheckMate();
+    return;
     
 }
 
