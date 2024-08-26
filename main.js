@@ -12,7 +12,7 @@
 let boardSquaresArray = [];
 let moves = []; // keep track of moves made by both players
 let isWhiteTurn = true;
-let enPassantSqaure = "blank";
+let enPassantSquare = "blank";
 // let  whiteKingSquare = "e1"; // dnot really need this anymore because of the new function getKingLastMove()
 // let blackKingSquare = "e8";
 const castlingSquares = ["g1", "g8", "c1", "c8"];
@@ -251,6 +251,16 @@ function drop(act)
         {
             return;
         }
+
+        if(pieceType == "pawn" && enPassantSquare == destSquareId) 
+        {
+            performEnPassant(piece, pieceColor, startSqID, destSquareId);
+            enPassantSquare = "blank";
+            return;
+        }
+
+
+
 
         destSquare.appendChild(piece);
         isWhiteTurn = !isWhiteTurn;
@@ -526,8 +536,8 @@ function checkPawnDiagCap(startSqID, pieceColor, boardSquaresArray)
                 if(enPassantPossible(currentSquareID, pawnStartingSquareId, direction))
                 {
                     let pawnStartingSquareRank = rankNum + direction;
-                    let enPassantSqaure = currentFile + pawnStartingSquareRank;
-                    legalSquares.push(enPassantSqaure);
+                    let enPassantSquare = currentFile + pawnStartingSquareRank;
+                    legalSquares.push(enPassantSquare);
                 }
             }
         }
@@ -558,7 +568,7 @@ function enPassantPossible(currentSquareID, pawnStartingSquare, direction)
     rank = parseInt(currentSquareID[1]);
     rank += direction;
     let squareBehindId = file + rank;
-    enPassantSqaure = squareBehindId;
+    enPassantSquare = squareBehindId;
     return true;
 }
 
@@ -662,9 +672,9 @@ function getRookMoves(startSqID, pieceColor, boardSquaresArray)
     let moveToEightRankSquares = moveToEightRank(startSqID, pieceColor, boardSquaresArray); // up
     let moveToFirstRankSquares = moveToFirstRank(startSqID, pieceColor, boardSquaresArray); // down 
     let moveToAFileSquares = moveToAFile(startSqID, pieceColor, boardSquaresArray); // left 
-    let moveToHFileSqaures = moveToHFile(startSqID, pieceColor, boardSquaresArray); // right
+    let moveToHFileSquares = moveToHFile(startSqID, pieceColor, boardSquaresArray); // right
 
-    let legalSquares = [... moveToEightRankSquares, ... moveToFirstRankSquares, ... moveToAFileSquares, ...moveToHFileSqaures];
+    let legalSquares = [... moveToEightRankSquares, ... moveToFirstRankSquares, ... moveToAFileSquares, ...moveToHFileSquares];
 
     return legalSquares;
 
@@ -1290,6 +1300,42 @@ function performCastling(piece, pieceColor, startSqID, destSquareId, boardSquare
     
 }
 
+
+
+    /* 
+    * this function will function like anyother perform function really... 
+    * the function will play the enPassant move on the board and then update both 
+    * the boardSquaresArray and the moves Array
+    */
+function performEnPassant(piece, pieceColor, startSqID, destSquareId)
+{
+    let file = destSquareId[0];
+    let rank = parseInt(destSquareId[1]);
+    rank +=(pieceColor === "white") ? -1 : 1;
+
+    let squareBehindId = file + rank;
+    const  squareBehindElement = document.getElementById(squareBehindId); 
+    while(squareBehindElement.firstChild)
+    {
+        squareBehindElement.removeChild(squareBehindElement.firstChild);
+    }
+    let squareBehind = boardSquaresArray.find(
+        (element) => element.squareId == squareBehindId
+    );
+
+    squareBehind.pieceColor = "blank";
+    squareBehind.pieceType = "blank";
+    squareBehind.pieceId = "blank";
+
+    const destSquare = document.getElementById(destSquareId);
+    destSquare.appendChild(piece);
+    isWhiteTurn = !isWhiteTurn;
+    updateBoardSquaresArray(startSqID, destSquareId, boardSquaresArray);
+    let captured = true;
+    makeMove(startSqID, destSquareId, "pawn", pieceColor, captured);
+    checkForCheckMate();
+    return;
+}
 
 
 
