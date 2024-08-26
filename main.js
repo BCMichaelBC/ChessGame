@@ -12,6 +12,7 @@
 let boardSquaresArray = [];
 let moves = []; // keep track of moves made by both players
 let isWhiteTurn = true;
+let enPassantSqaure = "blank";
 // let  whiteKingSquare = "e1"; // dnot really need this anymore because of the new function getKingLastMove()
 // let blackKingSquare = "e8";
 const castlingSquares = ["g1", "g8", "c1", "c8"];
@@ -514,6 +515,21 @@ function checkPawnDiagCap(startSqID, pieceColor, boardSquaresArray)
             {
                 legalSquares.push(currentSquareID);
             }
+
+            if(SquareContent == "blank")
+            {
+                currentSquareID = currentFile + rank;
+                let pawnStartingSquareRank = rankNum + direction * 2;
+                let pawnStartingSquareId = currentFile + pawnStartingSquareRank;
+
+
+                if(enPassantPossible(currentSquareID, pawnStartingSquareId, direction))
+                {
+                    let pawnStartingSquareRank = rankNum + direction;
+                    let enPassantSqaure = currentFile + pawnStartingSquareRank;
+                    legalSquares.push(enPassantSqaure);
+                }
+            }
         }
     }
 
@@ -521,6 +537,31 @@ function checkPawnDiagCap(startSqID, pieceColor, boardSquaresArray)
 return legalSquares;
 
 }
+
+    /*
+    * this function will take the square If of the sqaure next to the pawn and the sqaure Id of the sqaure
+    * two squares behind it as arguments.
+    * 
+    * the function will also check if, in the last move, a pawn moved from the square two squares behind 
+    * to the sqaure next to the pawn. if this is true and the piece that moved is a pawn then an en passant move is possible
+    */
+function enPassantPossible(currentSquareID, pawnStartingSquare, direction)
+{
+    if(moves. length == 0)
+        return false;
+
+    let lastMove = moves[moves.length - 1];
+    if(!(lastMove.to === currentSquareID && lastMove.from === pawnStartingSquare && lastMove.pieceType == "pawn"))
+        return false;
+
+    file = currentSquareID[0];
+    rank = parseInt(currentSquareID[1]);
+    rank += direction;
+    let squareBehindId = file + rank;
+    enPassantSqaure = squareBehindId;
+    return true;
+}
+
 function checkPawnMoves(startSqID, pieceColor, boardSquaresArray)
 {
     const file = startSqID.charAt(0);
