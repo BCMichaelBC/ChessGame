@@ -19,6 +19,7 @@ const castlingSquares = ["g1", "g8", "c1", "c8"];
 const boardSquares = document.getElementsByClassName("square");
 const pieces = document.getElementsByClassName("piece");
 const pieceImg = document.getElementsByTagName("img");
+let allowMovement = true;
 
 
 /* 
@@ -179,6 +180,11 @@ function allowDrop(act)
 
 function drag(act)
 {
+    if(!allowMovement)
+    {
+        return;
+    } 
+    
     const piece = act.target;
     const pieceColor = piece.getAttribute("color");
     const pieceType = piece.classList[1];
@@ -260,6 +266,16 @@ function drop(act)
         }
 
 
+        if(pieceType == "pawn" && (destSquareId.charAt(1) == 8 || 
+        destSquareId.charAt(1) == 1) )
+        {
+            allowMovement = false;
+            displayPromotionChoices(pieceId, pieceColor, startSqID, destSquareId, false);
+            updateBoardSquaresOpacity();
+            return;
+        }
+
+
 
 
         destSquare.appendChild(piece);
@@ -275,6 +291,14 @@ function drop(act)
 // if the square is taken remove all of its childern before appending, should look like a capture.
     if(SquareContent.pieceColor != "blank" && legalSquares.includes(destSquareId))
     {
+        if(pieceType == "pawn" && (destSquareId.charAt(1) == 8 || 
+        destSquareId.charAt(1) == 1) )
+        {
+            allowMovement = false;
+            displayPromotionChoices(pieceId, pieceColor, startSqID, destSquareId, true);
+            updateBoardSquaresOpacity();
+            return;
+        }
         // console.log(isSquareTaken(destSquare));
         while(destSquare.firstChild)
         {
@@ -602,13 +626,14 @@ function checkPawnMoves(startSqID, pieceColor, boardSquaresArray)
     }
     legalSquares.push(currentSquareID);
 
-    if(rankNum != 2 && rankNum != 7)
+    if( !((rankNum == 2 && pieceColor == "white") || (rankNum == 7 && pieceColor == "black")) )
     {
         return legalSquares;
     }
     currentRank += direction;
-    currentSquareID = currentFile+currentRank;
+    currentSquareID = currentFile + currentRank;
     currentSquare = boardSquaresArray.find((element) => element.squareId === currentSquareID);
+
     SquareContent = currentSquare.pieceColor;
 
     if(SquareContent != "blank")
@@ -1338,6 +1363,57 @@ function performEnPassant(piece, pieceColor, startSqID, destSquareId)
 }
 
 
+// this functions job is kinda what it says. it should only serve to display the promotion options
+
+function displayPromotionChoices(pieceId, pieceColor, startSqID, destSquareId, captured)
+{
+    let file = destSquareId[0];
+    let rank = parseInt(destSquareId[1]); // this is repersenting the last rank on the board
+    let rank1 = (pieceColor == "white") ? rank - 1 : rank + 1 // rank 1 2 3 are ranks immediatly behind it based on the colot of pawn
+    let rank2 = (pieceColor == "white") ? rank1 - 1 : rank1 + 1
+    let rank3 = (pieceColor == "white") ? rank2 - 1 : rank2 + 1
+
+    let squareBehindId1 = file + rank1;
+    let squareBehindId2 = file + rank2;
+    let squareBehindId3 = file + rank3;
+
+    const destSquare = document.getElementById(destSquareId);
+    const squareBehind1 = document.getElementById(squareBehindId1);
+    const squareBehind2 = document.getElementById(squareBehindId2);
+    const squareBehind3 = document.getElementById(squareBehindId3);
+
+    let piece1 = createChessPiece("queen", pieceColor, "promotionOption");
+    let piece2 = createChessPiece("knight", pieceColor, "promotionOption");
+    let piece3 = createChessPiece("rook", pieceColor, "promotionOption");
+    let piece4 = createChessPiece("bishop", pieceColor, "promotionOption");
+
+
+    destSquare.appendChild(piece1);
+    squareBehind1.appendChild(piece2);
+    squareBehind2.appendChild(piece3);
+    squareBehind3.appendChild(piece4);
+
+
+}
+
+
+    /* 
+    * This function will generate a chess piece as a div element that contains an image. the class names and atrributes
+    * of the element are set based on the piece Type and color
+    */
+function createChessPiece(pieceType, color, pieceClass )
+{
+    let pieceName = color.charAt(0).toUpperCase() + color.slice(1)+ pieceType.charAt(0).toUpperCase() + pieceType.slice(1) +".png";
+
+    let pieceDiv = document.createElement("div");
+    pieceDiv.className = `${pieceClass} ${pieceType}`;
+    pieceDiv.setAttribute("color", color);
+    let img = document.createElement("img");
+    img.src = pieceName;
+    img.alt = pieceType;
+    pieceDiv.appendChild(img);
+    return pieceDiv;
+}
 
 
 
