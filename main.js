@@ -1403,7 +1403,7 @@ function displayPromotionChoices(pieceId, pieceColor, startSqID, destSquareId, c
     */
 function createChessPiece(pieceType, color, pieceClass )
 {
-    let pieceName = "spirtes/"+color.charAt(0).toUpperCase() + color.slice(1)+ pieceType.charAt(0).toUpperCase() + pieceType.slice(1) +".png";
+    let pieceName = "sprites/"+color.charAt(0).toUpperCase() + color.slice(1)+ pieceType.charAt(0).toUpperCase() + pieceType.slice(1) +".png";
     console.log(pieceName);
     let pieceDiv = document.createElement("div");
     pieceDiv.className = `${pieceClass} ${pieceType}`;

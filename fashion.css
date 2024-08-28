@@ -109,6 +109,29 @@ body
     
 }
 
+.promotionOption
+{
+    border-radius: 50%;
+    background-color: darkgray;
+    transition: transfom 0.2;
+    position: absolute;
+    z-index: 1000;
+}
+
+.promotionOption:hover
+{
+    cursor:pointer;
+    border-radius: 0%;
+    background-color: rgb(115, 194, 132);
+    width: 100%;
+}
+
+.promotionOption img
+{
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+}
 
 
 @media (min-width: 600px)
