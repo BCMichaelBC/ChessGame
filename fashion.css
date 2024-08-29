@@ -10,7 +10,7 @@ body
     height: 100vh; 
     
 }
-#alert
+/* #alert
 {
     position: fixed;
     top: 45%;
@@ -24,7 +24,23 @@ body
     justify-content: center;
     font-size: x-large;
     display: none;
-}
+} */
+#alert {
+    position: fixed;
+    top:50%;
+    left:50%;
+    transform: translate(-50%,-50%);
+    color:rgb(0, 176, 67);
+    width:44vw;
+    text-align: center;
+    align-content: center;
+    justify-content: center;
+    font-size:xxx-large;
+    font-weight: bold;
+    z-index: 1000;
+    display: none;
+  
+  }
 
 /* class chessboard */
 .chessBoard
