@@ -20,7 +20,7 @@ const boardSquares = document.getElementsByClassName("square");
 const pieces = document.getElementsByClassName("piece");
 const pieceImg = document.getElementsByTagName("img");
 let allowMovement = true;
-
+const chessBoard = document.querySelector(".chessBoard");
 
 /* 
 * functoin setupBoard will loop through the array boardSquares and for each "square"
@@ -1416,7 +1416,29 @@ function createChessPiece(pieceType, color, pieceClass )
 }
 
 
+// making it so the promotion choices disappear when the user clicks anywhere on the board
+chessBoard.addEventListener("click", clearPromotionOptions);
 
+
+function clearPromotionOptions()
+{
+    for(let i = 0; i < boardSquares.length; i++)
+    {
+        let style = getComputedStyle(boardSquares[i]);
+        let backgroundColor = style.backgroundColor;
+        let rgbaColor = backgroundColor.replace("0.5)" , "1)");
+        boardSquares[i].style.backgroundColor = rgbaColor;
+        boardSquares[i].style.opacity = 1;
+
+    }
+
+    let elementsToRemove = chessBoard.querySelectorAll(".promotionOption");
+    elementsToRemove.forEach( function(element){
+       element.parentElement.removeChild(element);
+    } );
+
+    allowMovement = true;
+}
 
 
 
