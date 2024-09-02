@@ -1440,7 +1440,23 @@ function clearPromotionOptions()
     allowMovement = true;
 }
 
-
+function updateBoardSquaresOpacity()
+{
+    for(let i = 0; i < boardSquares.length; i++)
+    {
+        if(!(boardSquares[i].querySelector(".promotionOption")))
+        {
+            boardSquares[i].style.opacity = 0.5;
+        }
+        else
+        {
+            let style = getComputedStyle(boardSquares[i]);
+            let backgroundColor = style.backgroundColor;
+            let rgbaColor = backgroundColor.replace("rgb", "rgba").replace(")", "0.5)");
+            boardSquares[i].style.backgroundColor = rgbaColor;
+        }
+    }
+}
 
 
 
