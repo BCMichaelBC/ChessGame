@@ -39,14 +39,15 @@ setupPieces();
 fillBoardSquaresArray();
 
 
-function makeMove(startSqID, destSquareId, pieceType, pieceColor, captured)
+function makeMove(startSqID, destSquareId, pieceType, pieceColor, captured, promotedTo = "blank")
 {
     moves.push({
         from: startSqID,
         to: destSquareId,
         pieceType: pieceType,
         pieceColor: pieceColor,
-        captured: captured
+        captured: captured,
+        promotedTo : promotedTo
     });
 }
 
@@ -322,15 +323,15 @@ function drop(act)
     * respective objects in the boardSquaresArray after each move. this means removing the piece
     * from the start square and adding it to the destination square.
     */
-function updateBoardSquaresArray(currentSquareID, destSquareId, boardSquaresArray)
+function updateBoardSquaresArray(currentSquareID, destSquareId, boardSquaresArray, promotionOption = "blank")
 {
     let currentSquare = boardSquaresArray.find((element) => element.squareId === currentSquareID);
 
     let destSquareElement =  boardSquaresArray.find((element) => element.squareId === destSquareId);
 
     let pieceColor = currentSquare.pieceColor;
-    let pieceType = currentSquare.pieceType;
-    let pieceId = currentSquare.pieceId;
+    let pieceType = promotionOption == "blank" ? currentSquare.pieceType: promotionOption;
+    let pieceId = promotionOption == "blank" ? currentSquare.pieceId : promotionOption + currentSquare.pieceId
 
     destSquareElement.pieceColor = pieceColor;
     destSquareElement.pieceType = pieceType;
@@ -1393,8 +1394,57 @@ function displayPromotionChoices(pieceId, pieceColor, startSqID, destSquareId, c
     squareBehind2.appendChild(piece3);
     squareBehind3.appendChild(piece4);
 
+    let promotionOptions = document.getElementsByClassName("promotionOption");
+
+    for(let i = 0; i < promotionOptions.length; i++)
+    {
+        let pieceType = promotionOptions[i].classList[1];
+        promotionOptions[i].addEventListener("click", function(){
+            performPromotion(pieceId, pieceType, pieceColor, startSqID, destSquareId, captured);
+        })
+    }
+
 
 }
+
+function performPromotion(pieceId, pieceType, pieceColor, startSqID, destSquareId, captured)
+{
+    clearPromotionOptions();
+    promotionPiece = pieceType;
+    piece = createChessPiece(pieceType, pieceColor, "piece");
+
+    piece.addEventListener("dragstart", drag);
+    piece.setAttribute("draggable", true);
+    piece.firstChild.setAttribute("draggable", false);
+    piece.id = pieceType + pieceId;
+
+    const startSq = document.getElementById(startSqID);
+    while(startSq.firstChild)
+    {
+        startSq.removeChild(startSq.firstChild);
+    }
+
+    const destSquare = document.getElementById(destSquareId);
+
+    if(captured)
+    {
+        while(destSquare.firstChild)
+        {
+            destSquare.removeChild(destSquare.firstChild);
+        }
+    }
+    destSquare.appendChild(piece);
+    isWhiteTurn = !isWhiteTurn;
+    updateBoardSquaresArray(startSqID, destSquareId, boardSquaresArray, pieceType);
+
+    makeMove(startSqID, destSquareId, pieceType, pieceColor, captured, pieceType);
+
+    checkForCheckMate();
+
+    return;
+
+}
+
 
 
     /* 
@@ -1452,11 +1502,12 @@ function updateBoardSquaresOpacity()
         {
             let style = getComputedStyle(boardSquares[i]);
             let backgroundColor = style.backgroundColor;
-            let rgbaColor = backgroundColor.replace("rgb", "rgba").replace(")", "0.5)");
+            let rgbaColor = backgroundColor.replace("rgb", "rgba").replace(")", ",0.5)");
             boardSquares[i].style.backgroundColor = rgbaColor;
         }
     }
 }
+
 
 
 
