@@ -285,7 +285,7 @@ function drop(act)
         updateBoardSquaresArray(startSqID, destSquareId, boardSquaresArray );
         let captured = false;
         makeMove(startSqID, destSquareId, pieceType, pieceColor, captured);
-        checkForCheckMate(); // checking for checkmate after every drop
+        checkForEndGame(); // checking for checkmate after every drop
         return;
     }
 
@@ -311,7 +311,7 @@ function drop(act)
         updateBoardSquaresArray(startSqID, destSquareId, boardSquaresArray );
         let captured = true;
         makeMove(startSqID, destSquareId, pieceType, pieceColor, captured);
-        checkForCheckMate();
+        checkForEndGame();
         return;
 
     }
@@ -1165,28 +1165,41 @@ function isMoveValidAgainstCheck(pieceColor, pieceType, startSqID, legalSquares)
 }
 
 
+
+function checkForEndGame()
+{
+    checkForCheckMateAndStaleMate();
+}
+
+
     /* 
     * the checkMate function will check if there are no legal moves for all pieces on one side
     * if there arent then it is checkmate and some one has won
+    * 
+    * ***Edited it to also when there a no more available moves just say its a draw
     */
 
-function checkForCheckMate()
+function checkForCheckMateAndStaleMate()
 {
     let kingSquare = isWhiteTurn ? getKingLastMove("white") :getKingLastMove("black");
     let pieceColor = isWhiteTurn ? "white" : "black";
     let boardSquaresArrayCopy = deepCopyArray(boardSquaresArray);
     let kingIsCheck = isKingInCheck(kingSquare, pieceColor, boardSquaresArrayCopy);
     
-    if(!kingIsCheck) 
-        return;
+    // if(!kingIsCheck) 
+    //     return;
 
     let possibleMoves = getAllPossibleMoves(boardSquaresArrayCopy, pieceColor); 
 
     if(possibleMoves.length > 0)
         return;
     let message = "";
+    if(kingIsCheck)
 
     isWhiteTurn ? message = "Black Wins!" : message = "White Wins!";
+
+    else
+    message = "Draw";
 
     showAlert(message);
 
@@ -1321,7 +1334,7 @@ function performCastling(piece, pieceColor, startSqID, destSquareId, boardSquare
     let captured = false;
 
     makeMove(startSqID, destSquareId, "king", pieceColor, captured);
-    checkForCheckMate();
+    checkForEndGame();
     return;
     
 }
@@ -1359,7 +1372,7 @@ function performEnPassant(piece, pieceColor, startSqID, destSquareId)
     updateBoardSquaresArray(startSqID, destSquareId, boardSquaresArray);
     let captured = true;
     makeMove(startSqID, destSquareId, "pawn", pieceColor, captured);
-    checkForCheckMate();
+    checkForEndGame();
     return;
 }
 
@@ -1439,7 +1452,7 @@ function performPromotion(pieceId, pieceType, pieceColor, startSqID, destSquareI
 
     makeMove(startSqID, destSquareId, pieceType, pieceColor, captured, pieceType);
 
-    checkForCheckMate();
+    checkForEndGame();
 
     return;
 
