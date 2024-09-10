@@ -21,6 +21,7 @@ const pieces = document.getElementsByClassName("piece");
 const pieceImg = document.getElementsByTagName("img");
 let allowMovement = true;
 const chessBoard = document.querySelector(".chessBoard");
+let postitionArray = [];
 
 /* 
 * functoin setupBoard will loop through the array boardSquares and for each "square"
@@ -52,6 +53,121 @@ function makeMove(startSqID, destSquareId, pieceType, pieceColor, captured, prom
 }
 
 
+    /* 
+    * this function will generate FEN rules of a position, and will be used to check 
+    * for threefold repetition, insufficient materal, and 50-move rule draw.
+    * 
+    * FEN stands for Forsyth-Edwards Notation. it is a standard notation for describing a particular
+    * position of a chess game. the purpose of FEN is to provide all the necessary information to 
+    * restart a game from a particular position
+    */
+function generateFEN(boardSquares)
+{
+    let fen = "";
+    let rank = 8;
+    while(rank >= 1)
+    {
+        for(let file = "a"; file <= "h"; file = String.fromCharCode(file.charCodeAt(0) + 1))
+        {
+            const square = boardSquares.find((element) => element.squareId === `${file}${rank}`);
+
+            if(square && square.pieceType)
+            {
+                let pieceNotation = "";
+                switch (square.pieceType)
+                {
+                    case "pawn":
+                        pieceNotation = "p";
+                        break;
+                    
+                    case "bishop":
+                        pieceNotation = "b";
+                        break;
+
+                    case "knight":
+                        pieceNotation = "n";
+                        break;
+
+                    case "rook":
+                        pieceNotation = "r";
+                        break;
+
+                    case "queen":
+                        pieceNotation = "q";
+                        break;
+
+                    case "king":
+                        pieceNotation = "k";
+                        break;
+
+                    case "blank":
+                        pieceNotation = "blank";
+                        break;
+                        
+                }
+
+                fen += square.pieceColor === "white" ? pieceNotation.toUpperCase() : pieceNotation;
+
+
+            }
+            
+        }
+        if(rank > 1)
+        {
+            fen += "/";
+        }
+        rank --;
+    }
+    fen = fen.replace(new RegExp("blankblankblankblankblankblankblankblank", "g"),"8");
+    fen = fen.replace(new RegExp("blankblankblankblankblankblankblank", "g"),"7");
+    fen = fen.replace(new RegExp("blankblankblankblankblankblank", "g"),"6");
+    fen = fen.replace(new RegExp("blankblankblankblankblank", "g"),"5");
+    fen = fen.replace(new RegExp("blankblankblankblank", "g"),"4");
+    fen = fen.replace(new RegExp("blankblankblank", "g"),"3");
+    fen = fen.replace(new RegExp("blankblank", "g"),"2");
+    fen = fen.replace(new RegExp("blank", "g"),"1");
+
+    fen += isWhiteTurn ? " w " : " b ";
+
+
+    let castlingString = "";
+
+    let shortCastlePossibleForWhite = !kingHasMoved("white") && !rookHasMoved("white", "h1");
+    let longCastlePossibleForWhite = !kingHasMoved("white") && !rookHasMoved("white", "a1");
+    let shortCastlePossibleForBlack = !kingHasMoved("black") && !rookHasMoved("black", "h8");
+    let longCastlePossibleForBlack = !kingHasMoved("black") && !rookHasMoved("black", "a8");
+
+    if(shortCastlePossibleForWhite)
+        castlingString += "K";
+
+    if(longCastlePossibleForWhite)
+        castlingString += "Q";
+
+    if(shortCastlePossibleForBlack)
+        castlingString += "k";
+
+    if(longCastlePossibleForBlack)
+        castlingString += "q";
+
+    if(castlingString == "")
+        castlingString += "-";
+
+    castlingString += " ";
+
+    fen += castlingString;
+
+    fen += enPassantSquare == "blank" ? "-" : enPassantSquare;
+
+    let fiftyMovesRuleCount = getFiftyMovesRuleCount();
+    fen += " " + fiftyMovesRuleCount;
+    let moveCount = Math.floor(moves.length / 2 ) + 1;
+    fen += " " + moveCount;
+    console.log(fen);
+    return fen;
+
+}
+
+
 
 function fillBoardSquaresArray()
 {
@@ -62,7 +178,7 @@ function fillBoardSquaresArray()
     * the pieces on the chessboard. This array will be updated after each move to reflect the
     * current state of the chessboard.
     * 
-    * each element in the array is containing the sqaureId, pieceId, pieceType
+    * each element in the array is containing the squareId, pieceId, pieceType
     * and pieceColor properties. the squareId property represents the square's
     * identifier, while the pieceId, pieceType, and pieceColor Properties
     * represent the identifier, type, and color of th epiece occupying the square
@@ -262,10 +378,10 @@ function drop(act)
         if(pieceType == "pawn" && enPassantSquare == destSquareId) 
         {
             performEnPassant(piece, pieceColor, startSqID, destSquareId);
-            enPassantSquare = "blank";
             return;
         }
 
+        enPassantSquare = "blank";
 
         if(pieceType == "pawn" && (destSquareId.charAt(1) == 8 || 
         destSquareId.charAt(1) == 1) )
@@ -347,10 +463,10 @@ function updateBoardSquaresArray(currentSquareID, destSquareId, boardSquaresArra
 
 
     /*
-    * making a new function called getPieceAtSquare to used in replace of isSqaureTaken 
+    * making a new function called getPieceAtSquare to used in replace of issquareTaken 
     * this function shou;d return an object containing the properties of the piece occupying the square
     * 
-    * This new functoin will first find the object with the sqaureId given then extract properties
+    * This new functoin will first find the object with the squareId given then extract properties
     */
 function getPieceAtSquare(squareId, boardSquaresArray)
 {
@@ -418,7 +534,7 @@ function isSquareTaken(square)
     /* this function will search the moves array to find the last move made by the king */
 
     /* 
-    * with this function there is no ned to save the king's last sqaure anymore
+    * with this function there is no ned to save the king's last square anymore
     * so we can modify isMoveValidAginstCheck function and checkForCheckMate function
     * to just use this new function
     */
@@ -574,11 +690,11 @@ return legalSquares;
 }
 
     /*
-    * this function will take the square If of the sqaure next to the pawn and the sqaure Id of the sqaure
+    * this function will take the square If of the square next to the pawn and the square Id of the square
     * two squares behind it as arguments.
     * 
     * the function will also check if, in the last move, a pawn moved from the square two squares behind 
-    * to the sqaure next to the pawn. if this is true and the piece that moved is a pawn then an en passant move is possible
+    * to the square next to the pawn. if this is true and the piece that moved is a pawn then an en passant move is possible
     */
 function enPassantPossible(currentSquareID, pawnStartingSquare, direction)
 {
@@ -1169,6 +1285,7 @@ function isMoveValidAgainstCheck(pieceColor, pieceType, startSqID, legalSquares)
 function checkForEndGame()
 {
     checkForCheckMateAndStaleMate();
+    generateFEN(boardSquaresArray)
 }
 
 
@@ -1203,6 +1320,18 @@ function checkForCheckMateAndStaleMate()
 
     showAlert(message);
 
+}
+
+function getFiftyMovesRuleCount()
+{
+    let count = 0;
+    for ( let i = 0; i < moves.length; i++)
+    {
+        count++;
+        if(moves[i].captured || moves[i].pieceType =="pawn" || moves[i].promotedTo != "blank")
+            count = 0;
+    }
+    return count;
 }
 
 function getAllPossibleMoves(squaresArray, pieceColor)
@@ -1372,6 +1501,7 @@ function performEnPassant(piece, pieceColor, startSqID, destSquareId)
     updateBoardSquaresArray(startSqID, destSquareId, boardSquaresArray);
     let captured = true;
     makeMove(startSqID, destSquareId, "pawn", pieceColor, captured);
+    enPassantSquare = "blank";
     checkForEndGame();
     return;
 }
