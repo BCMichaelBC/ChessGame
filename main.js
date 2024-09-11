@@ -1285,7 +1285,15 @@ function isMoveValidAgainstCheck(pieceColor, pieceType, startSqID, legalSquares)
 function checkForEndGame()
 {
     checkForCheckMateAndStaleMate();
-    generateFEN(boardSquaresArray)
+    let currentPosition = generateFEN(boardSquaresArray);
+    postitionArray.push(currentPosition);
+    let threeFoldRepetition = isThreefoldRepetition();
+    let isDraw = threeFoldRepetition;
+    if(isDraw)
+    {
+        allowMovement = false;
+        showAlert("Draw");
+    }
 }
 
 
@@ -1332,6 +1340,16 @@ function getFiftyMovesRuleCount()
             count = 0;
     }
     return count;
+}
+
+
+function isThreefoldRepetition()
+{
+    return postitionArray.some((string) => {
+        const fen = string.split(" ").slice(0, 4).join(" ");
+        return postitionArray.filter(
+            (element) => element.split(" ").slice(0, 4).join(" ") === fen).length >= 3
+    });
 }
 
 function getAllPossibleMoves(squaresArray, pieceColor)
