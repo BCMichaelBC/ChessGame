@@ -1287,9 +1287,10 @@ function checkForEndGame()
     checkForCheckMateAndStaleMate();
     let currentPosition = generateFEN(boardSquaresArray);
     postitionArray.push(currentPosition);
+    let insufficientMaterial = hasInsufficientMaterial(currentPosition);
     let threeFoldRepetition = isThreefoldRepetition();
-    let isDraw = threeFoldRepetition;
-    if(isDraw)
+    let isDraw = threeFoldRepetition || insufficientMaterial;
+    if(isDraw )
     {
         allowMovement = false;
         showAlert("Draw");
@@ -1350,6 +1351,68 @@ function isThreefoldRepetition()
         return postitionArray.filter(
             (element) => element.split(" ").slice(0, 4).join(" ") === fen).length >= 3
     });
+}
+
+function hasInsufficientMaterial(fen)
+{
+    const piecePlacement = fen.split(" ")[0];
+    const whiteBishops = piecePlacement.split("").filter(char => char === 'B').length;
+    const blackBishops = piecePlacement.split("").filter(char => char === 'b').length;
+    const whiteKnights = piecePlacement.split("").filter(char => char === 'N').length;
+    const blackKnights = piecePlacement.split("").filter(char => char === 'n').length;
+    const whiteQueens = piecePlacement.split("").filter(char => char === 'Q').length;
+    const blackQueens = piecePlacement.split("").filter(char => char === 'q').length;
+    const whiteRooks = piecePlacement.split("").filter(char => char === 'R').length;
+    const blackRooks = piecePlacement.split("").filter(char => char === 'r').length;
+    const whitePawns = piecePlacement.split("").filter(char => char === 'P').length;
+    const blackPawns = piecePlacement.split("").filter(char => char === 'p').length;
+
+    if(whiteQueens + blackQueens + whiteRooks + blackRooks + whitePawns + blackPawns > 0)
+    {
+        return false;
+    }
+
+    if(whiteKnights + blackKnights > 1)
+    {
+        return false;
+    }
+
+    if(whiteBishops > 0 || blackBishops > 0 &&(whiteKnights + blackKnights > 0))
+    {
+        return false;
+    }
+
+    if(whiteBishops > 1 || blackBishops > 1)
+    {
+        return false;
+    }
+
+    if(whiteBishops === 1 && blackBishops === 1)
+    {
+        // if both both bishops are on the same color tile with insuff mat the game is also a draw
+        let whiteBishopSquarecolor, blackBishopSquareColor;
+
+        let whiteBishopSquare = boardSquaresArray.find(element =>(element.pieceType === "bishop" && element.pieceColor === "white"));
+        let blackBishopSquare = boardSquaresArray.find(element =>(element.pieceType === "bishop" && element.pieceColor === "black"));
+
+        whiteBishopSquarecolor = getSquareColor(whiteBishopSquare.squareId);
+        blackBishopSquareColor = getSquareColor(blackBishopSquare.squareId);
+
+        if(whiteBishopSquarecolor != blackBishopSquareColor)
+        {
+            return false;
+        }
+    }
+    
+    return true;
+
+}
+
+function getSquareColor(squareId)
+{
+    let squareElement = document.getElementById(squareId);
+    let squareColor = squareElement.classList.contains("white") ? "white" : "black";
+    return squareColor;
 }
 
 function getAllPossibleMoves(squaresArray, pieceColor)
