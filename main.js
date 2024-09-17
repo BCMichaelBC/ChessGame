@@ -1289,7 +1289,9 @@ function checkForEndGame()
     postitionArray.push(currentPosition);
     let insufficientMaterial = hasInsufficientMaterial(currentPosition);
     let threeFoldRepetition = isThreefoldRepetition();
-    let isDraw = threeFoldRepetition || insufficientMaterial;
+    let fiftyMovesRuleCount = currentPosition.split(" ")[4];
+    fiftymovesRule = fiftyMovesRuleCount != 100 ? false : true
+    let isDraw = threeFoldRepetition || insufficientMaterial || fiftymovesRule;
     if(isDraw )
     {
         allowMovement = false;
