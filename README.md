@@ -8,5 +8,7 @@ HEY my name is Michael, Today im going to try to make a chess game using JavaScr
 
 • Further customize the game 
     • such as adding a bot
+    • Trying to add stockingfich
 
+• Trying to add an evolution bar The purpose is supposed to help show the state of the game
 Thats what I got for now.

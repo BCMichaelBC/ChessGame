@@ -150,6 +150,40 @@ body
 }
 
 
+.container 
+{
+    display: flex;
+
+}
+#evalBar
+{
+    background-color: rgb(255, 255, 255);
+    width: 5%;
+    height: 70vw;
+    float: left;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    border-radius: 3px;
+}
+
+#evalBar ::after
+{
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    box-shadow: 0 0 5px rgb(0, 0, 0, 0.7) inset;
+    border-radius: 3px;
+}
+
+
+
+
 @media (min-width: 600px)
 {
     .chessBoard
