@@ -8,6 +8,7 @@ body
     align-items: center;
     justify-content: center;
     height: 100vh; 
+    flex-direction: column;
     
 }
 /* #alert
@@ -168,7 +169,7 @@ body
     border-radius: 3px;
 }
 
-#evalBar ::after
+#evalBar::after
 {
     content: "";
     display: block;
@@ -181,8 +182,50 @@ body
     border-radius: 3px;
 }
 
+#evalBar .blackBar 
+{
+    width: 100%;
+    height: 35%;
+    background-color: #666;
+    transition: height 1s;
+    position: absolute;
+    top: 0;
+    border-radius: 3px;
+}
+
+.zero
+{
+    width: 100%;
+    opacity: 1;
+    border-bottom: 7px solid rgb(214, 79, 0, 0.4);
+    position: absolute;
+    top: 0;
+    height: 50%;
+}
+
+.evalNum
+{
+    width: 100%;
+    opacity: 1;
+    position: absolute;
+    top: 95%;
+    height: 50%;
+    font-size: 0.5rem;
+    font-weight: bolder;
+    text-align: center;
+    color: #d18232;
+
+}
 
 
+@media (min-width: 600px)
+{
+    #evalBar
+    {
+        height: 600px;
+        
+    }
+}
 
 @media (min-width: 600px)
 {
