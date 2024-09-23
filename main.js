@@ -1444,7 +1444,7 @@ function getAllPossibleMoves(squaresArray, pieceColor)
     })
 }
 function getEvaluation(fen,callback) {
-  var engine = new Worker("./node_modules/stockfish/src/stockfish-nnue-16-no-Worker.js");
+  var engine = new Worker("./node_modules/stockfish/src/stockfish-nnue-16-single.js");
   let evaluations =[];
 
   engine.onmessage = function (event) {
