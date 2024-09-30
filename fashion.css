@@ -218,6 +218,66 @@ body
 }
 
 
+#topLines
+{
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    border-radius: 4px;
+    border: 1px solid lightgray;
+    background-color: whitesmoke;
+    border-spacing: 0px;
+    max-width: 80vw;
+    overflow: hidden;
+}
+
+#topLines td
+{
+    border-collapse: collapse;
+    border: 1px solid lightgray;
+    padding: 8px;
+    font-size: 17px;
+    white-space: nowrap;
+    width: 100%;
+    text-align: left;
+}
+
+
+#topLines th
+{
+    padding: 8px;
+    text-align: left;
+}
+
+#topLines td, #topLines th
+{
+    white-space: nowrap;
+    overflow:hidden;
+    text-overflow: ellipsis;
+    max-width: 500px;
+}
+
+#line1, #line2, #line3
+{
+    min-width: 500px;
+
+}
+
+#eval1, #eval2, #eval3
+{
+    min-width: 40px;
+    
+}
+
+tr
+{
+    height: 40px;
+}
+
+
+
+
+
 @media (min-width: 600px)
 {
     #evalBar
