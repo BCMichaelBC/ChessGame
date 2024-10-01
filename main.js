@@ -39,8 +39,8 @@ setupBoard();
 setupPieces();
 fillBoardSquaresArray();
 let startingPosition = generateFEN(boardSquaresArray);
-getEvaluation(startingPosition, function(evaluations){
-    displayEvaluation(evaluations)
+getEvaluation(startingPosition, function(lines, evaluations, scoreString){
+    displayEvaluation(lines, evaluations, scoreString)
 })
 
 
@@ -1290,9 +1290,9 @@ function checkForEndGame()
 {
     checkForCheckMateAndStaleMate();
     let currentPosition = generateFEN(boardSquaresArray);
-    getEvaluation(currentPosition, function(evaluations)
+    getEvaluation(currentPosition, function(lines, evaluations, scoreString)
 {
-    displayEvaluation(evaluations);
+    displayEvaluation(lines, evaluations, scoreString);
 });
     postitionArray.push(currentPosition);
     let insufficientMaterial = hasInsufficientMaterial(currentPosition);
@@ -1446,7 +1446,7 @@ function getAllPossibleMoves(squaresArray, pieceColor)
 function getEvaluation(fen,callback) {
   var engine = new Worker("./node_modules/stockfish/src/stockfish-nnue-16-single.js");
   let evaluations =[];
-
+  let lines = [];
   engine.onmessage = function (event) {
     let message = event.data;
     console.log(message);
@@ -1457,7 +1457,7 @@ function getEvaluation(fen,callback) {
         let multipv = parseInt(multipvString);
         let scoreIndex = message.indexOf("score cp");
         if(scoreIndex!==-1) {
-          let scoreString = message.slice(scoreIndex).split(" ")[2];
+          var scoreString = message.slice(scoreIndex).split(" ")[2];
           let evaluation = parseInt(scoreString)/100;
           evaluation = isWhiteTurn ? evaluation : evaluation * -1;
           evaluations[multipv-1] = evaluation;
@@ -1470,9 +1470,11 @@ function getEvaluation(fen,callback) {
         }
         let pvIndex = message.indexOf(" pv ");
         if(pvIndex !== -1) {
+
           let pvString = message.slice(pvIndex+4).split(" ");
-          if(evaluations.length===1) {
-            callback(evaluations);
+          lines[multipv - 1] = pvString.join(" ");
+          if(evaluations.length === 3  && lines.length === 3) {
+            callback(lines, evaluations, scoreString);
           }
         }
       }
@@ -1486,7 +1488,7 @@ function getEvaluation(fen,callback) {
    engine.postMessage("go depth 10");
 }
 
-function displayEvaluation (evaluations) {
+function displayEvaluation (lines, evaluations, scoreString) {
   let blackBar = document.querySelector(".blackBar");
   let blackBarHeight = 50 - (evaluations[0]/15)*100;
   blackBarHeight = blackBarHeight>100 ? (blackBarHeight=100) : blackBarHeight;
@@ -1494,6 +1496,53 @@ function displayEvaluation (evaluations) {
   blackBar.style.height = blackBarHeight + "%";
   let evalNum = document.querySelector(".evalNum");
   evalNum.innerHTML = evaluations[0];
+  for(let i = 0; i < lines.length; i++)
+  {
+    let eval = document.getElementById("eval" + (i + 1));
+    let line = document.getElementById("line" + (i + 1));
+    eval.innerHTML = evaluations[i];
+    line.innerHTML = lines[i];
+    document.getElementById("eval").innerHTML = evaluations[0];
+    if(Math.abs(evaluations[0] < 0.5))
+    {
+        document.getElementById("evalText").innerHTML = "Equal";
+    }
+    if(evaluations[0] < 1 && evaluations[0] >= 0.5 )
+    {
+        document.getElementById("evalText").innerHTML = "White is slightly better";
+    }
+    if(evaluations[0] > -1 && evaluations[0] <= -0.5 )
+    {
+        document.getElementById("evalText").innerHTML = "Black is slightly better";
+    }
+    if(evaluations[0] < 2 && evaluations[0] >= 1 )
+    {
+        document.getElementById("evalText").innerHTML = "White is much better";
+    }
+    if(evaluations[0] > -2 && evaluations[0] <= -1 )
+    {
+        document.getElementById("evalText").innerHTML = "Black is much better";
+    }
+
+    if(evaluations[0] > 2)
+    {
+        document.getElementById("evalText").innerHTML = "White is winning";
+    }
+    if(evaluations[0] < -2)
+    {
+        document.getElementById("evalText").innerHTML = "Black is winning";
+    }
+
+   if(evaluations[0].toString().includes("#")) {
+      const mateInMoves = evaluations[0].slice(1);
+      const isWhiteWinning = (parseInt(scoreString)>0 && isWhiteTurn) ||(parseInt(scoreString)<0 && !isWhiteTurn);
+      const winningColor = isWhiteWinning ? "White" : "Black";
+      document.getElementById("evalText").innerHTML = `${winningColor} can mate in ${mateInMoves} moves`;
+      blackBarHeight = isWhiteWinning? 0 : 100;
+      blackBar.style.height = blackBarHeight+"%";
+    }
+
+  }
 }
 
 function isShortCastlePossble(pieceColor, boardSquaresArray)

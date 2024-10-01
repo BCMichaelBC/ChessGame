@@ -46,8 +46,8 @@ body
 /* class chessboard */
 .chessBoard
 {
-    width: 80vw;
-    height: 80vw ;
+    width: 80px;
+    height: 80px ;
     margin: 0 auto;
     display: flex;
     flex-wrap: wrap;
@@ -228,7 +228,7 @@ body
     background-color: whitesmoke;
     border-spacing: 0px;
     max-width: 80vw;
-    overflow: hidden;
+    overflow:scroll;
 }
 
 #topLines td
@@ -254,7 +254,7 @@ body
     white-space: nowrap;
     overflow:hidden;
     text-overflow: ellipsis;
-    max-width: 500px;
+    max-width: 900px;
 }
 
 #line1, #line2, #line3
