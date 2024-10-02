@@ -1844,6 +1844,53 @@ function updateBoardSquaresOpacity()
 
 
 
+function convertStockfishToStandardNotation(stockfishMoves, moveNumber, whiteTurn)
+{
+    let standardMoves = "";
+    let moves = stockfishMoves.split(" ");
+    let boardSquaresArrayCopy = deepCopyArray(boardSquaresArray);
+    for(let i = 0; i < moves.length; i ++)
+    {
+        let move = moves[i];
+        let from = move.substring(0,2);
+        let to = move.substring(2,4);
+        let promotion = move.length > 4 ? move.charAt(4) : null;
+        let fromSquare = boardSquaresArrayCopy.find(square => square.squareId === from);
+        let toSquare = getPieceAtSquare(to, boardSquaresArrayCopy);
+        if(fromSquare && toSquare)
+        {
+            let fromPiece = fromSquare.pieceType;
+            switch(fromPiece.toLowerCase())
+            {
+                case "pawn":
+                    fromPiece = "";
+                    break;
+                
+                case "knight":
+                    fromPiece = "N";
+                    break;
+
+                case "bishop":
+                    fromPiece = "B";
+                    break;
+
+                case "rook":
+                    fromPiece = "R";
+                    break;
+                
+                case "queen":
+                    fromPiece = "Q";
+                    break;
+
+                case "king":
+                    fromPiece = "K";
+                    break;
+            }
+        }
+    }
+}
+
+
 
 
 
